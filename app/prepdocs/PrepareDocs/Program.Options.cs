@@ -2,6 +2,9 @@
 
 internal static partial class Program
 {
+    private static readonly Argument<string> s_metadataFile =
+        new(name: "metadatafile", description: "JSON file containing metadata for the files to be processed");
+
     private static readonly Argument<string> s_files =
         new(name: "files", description: "Files to be processed");
 
@@ -44,13 +47,14 @@ internal static partial class Program
         uploading to blob storage, and indexing in a search index.
         """)
     {
-        s_files, s_category, s_skipBlobs, s_storageEndpoint,
+        s_metadataFile, s_files, s_category, s_skipBlobs, s_storageEndpoint,
         s_container, s_tenantId, s_searchService, s_searchIndexName,
         s_remove, s_removeAll, s_formRecognizerServiceEndpoint, s_verbose
     };
 
     private static AppOptions GetParsedAppOptions(InvocationContext context) =>
         new(
+            MetadataFile: context.ParseResult.GetValueForArgument(s_metadataFile),
             Files: context.ParseResult.GetValueForArgument(s_files),
             Category: context.ParseResult.GetValueForOption(s_category),
             SkipBlobs: context.ParseResult.GetValueForOption(s_skipBlobs),

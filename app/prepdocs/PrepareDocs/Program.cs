@@ -1,4 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+﻿using System.Text.Json;
+
+// Copyright (c) Microsoft. All rights reserved.
 
 s_rootCommand.SetHandler(
     async (context) =>
@@ -12,6 +14,9 @@ s_rootCommand.SetHandler(
         else
         {
             await CreateSearchIndexAsync(options);
+
+            //read metadata JSON file
+            var metadata = await ReadMetadataAsync(options);
 
             Matcher matcher = new();
             matcher.AddInclude(options.Files);
@@ -30,12 +35,12 @@ s_rootCommand.SetHandler(
                 .Select(i =>
                 {
                     var fileName = files[i];
-                    return ProcessSingleFileAsync(options, fileName);
+                    return ProcessSingleFileAsync(options, fileName, metadata);
                 });
 
             await Task.WhenAll(tasks);
 
-            static async Task ProcessSingleFileAsync(AppOptions options, string fileName)
+            static async Task ProcessSingleFileAsync(AppOptions options, string fileName, FilesMetadata metadata)
             {
                 if (options.Verbose)
                 {
@@ -66,11 +71,21 @@ s_rootCommand.SetHandler(
                     await UploadCorpusAsync(options, corpusName, page.Text);
                 }
 
-                var sections = CreateSections(options, pageMap, fileName);
+                var sections = CreateSections(options, pageMap, fileName, metadata.Files.Single(x => x.FilePath == fileName));
                 await IndexSectionsAsync(options, sections, fileName);
             }
         }
     });
+
+static async Task<FilesMetadata> ReadMetadataAsync(AppOptions options)
+{
+    if (options.Verbose)
+    {
+        options.Console.WriteLine($"Reading metadata from '{options.MetadataFile}'");
+    }
+    var json = await File.ReadAllTextAsync(options.MetadataFile);
+    return JsonSerializer.Deserialize<FilesMetadata>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); ;
+}
 
 return await s_rootCommand.InvokeAsync(args);
 
@@ -378,7 +393,7 @@ static async ValueTask<IReadOnlyList<PageDetail>> GetDocumentTextAsync(
 }
 
 static IEnumerable<Section> CreateSections(
-    AppOptions options, IReadOnlyList<PageDetail> pageMap, string fileName)
+    AppOptions options, IReadOnlyList<PageDetail> pageMap, string fileName, FileMetadata fileMetadata)
 {
     const int MaxSectionLength = 1_000;
     const int SentenceSearchLimit = 100;
@@ -457,7 +472,7 @@ static IEnumerable<Section> CreateSections(
             SourcePage: BlobNameFromFilePage(fileName, FindPage(pageMap, start)),
             SourceFile: fileName,
             Category: options.Category,
-            GroupIds: new List<string>());
+            GroupIds: fileMetadata.GroupIds.Count() == 0? new List<string>() : fileMetadata.GroupIds);
 
         var lastTableStart = sectionText.LastIndexOf("<table", StringComparison.Ordinal);
         if (lastTableStart > 2 * SentenceSearchLimit && lastTableStart > sectionText.LastIndexOf("</table", StringComparison.Ordinal))
@@ -489,7 +504,7 @@ static IEnumerable<Section> CreateSections(
             SourcePage: BlobNameFromFilePage(fileName, FindPage(pageMap, start)),
             SourceFile: fileName,
             Category: options.Category,
-            GroupIds: new List<string>());
+            GroupIds: fileMetadata.GroupIds.Count() == 0 ? new List<string>() : fileMetadata.GroupIds);
     }
 }
 

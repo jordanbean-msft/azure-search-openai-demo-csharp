@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "filePath": "data/pdf/Benefit_Options.pdf",
+      "groupIds": [ "11d9e22b-f245-45de-abc4-7de511cdedae" ]
+    },
+    {
+      "filePath": "data/pdf/employee_handbook.pdf",
+      "groupIds": [ "027adf93-c46a-4286-b0c1-2acf8e345c37" ]
+    },
+    {
+      "filePath": "data/pdf/Northwind_Health_Plus_Benefits_Details.pdf",
+      "groupIds": [ "e3f11d14-bca1-41ae-b888-252bc13a6513", "11d9e22b-f245-45de-abc4-7de511cdedae" ]
+    },
+    {
+      "filePath": "data/pdf/Northwind_Standard_Benefits_Details.pdf",
+      "groupIds": [ "e3f11d14-bca1-41ae-b888-252bc13a6513", "11d9e22b-f245-45de-abc4-7de511cdedae" ]
+    },
+    {
+      "filePath": "data/pdf/PerksPlus.pdf",
+      "groupIds": [ "e3f11d14-bca1-41ae-b888-252bc13a6513" ]
+    },
+    {
+      "filePath": "data/pdf/role_library.pdf",
+      "groupIds": [ "027adf93-c46a-4286-b0c1-2acf8e345c37" ]
+    }
+  ]
+}

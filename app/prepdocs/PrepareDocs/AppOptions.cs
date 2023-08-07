@@ -3,6 +3,7 @@
 namespace PrepareDocs;
 
 internal record class AppOptions(
+    string MetadataFile,
     string Files,
     string? Category,
     bool SkipBlobs,
