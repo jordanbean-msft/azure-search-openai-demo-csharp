@@ -4,7 +4,10 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AZURE_KEY_VAULT_ENDPOINT": "https://kv-z73nu5t6lolqm.vault.azure.net/",
+        "AZURE_SUBSCRIPTION_ID": "cfa014c2-6565-444f-8241-b3edd39a2a44",
+        "AZURE_TENANT_ID": "4abfaf16-9535-4531-85a9-c85268607bae"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5167"
@@ -13,7 +16,10 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AZURE_TENANT_ID": "4abfaf16-9535-4531-85a9-c85268607bae",
+        "AZURE_SUBSCRIPTION_ID": "cfa014c2-6565-444f-8241-b3edd39a2a44",
+        "AZURE_KEY_VAULT_ENDPOINT": "https://kv-z73nu5t6lolqm.vault.azure.net/"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7181;http://localhost:5167"

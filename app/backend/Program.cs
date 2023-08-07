@@ -14,6 +14,15 @@ builder.Services.AddOutputCache();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+//builder.Services.AddAuthorizationBuilder().AddPolicy("AzureAd", policy => policy.RequireScope("API.Access"));
+builder.Services.AddAuthorization(builder =>
+{
+    builder.AddPolicy("AzureAd", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("scp", "API.Access");
+    });
+});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -77,12 +86,13 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
-
+app.MapSwagger();
 app.MapApi();
 
 app.Run();

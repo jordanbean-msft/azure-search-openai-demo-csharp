@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using Microsoft.AspNetCore.Components.Authorization;
+
 namespace ClientApp.Pages;
 
 public sealed partial class Chat
@@ -21,6 +23,9 @@ public sealed partial class Chat
     [CascadingParameter(Name = nameof(IsReversed))]
     public required bool IsReversed { get; set; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> _authenticationStateTask { get; set; }
+
     private Task OnAskQuestionAsync(string question)
     {
         _userQuestion = question;
@@ -31,6 +36,18 @@ public sealed partial class Chat
     {
         if (string.IsNullOrWhiteSpace(_userQuestion))
         {
+            return;
+        }
+
+        var user = (await _authenticationStateTask).User;
+
+        if(user.Identity == null || !user.Identity.IsAuthenticated)
+        {
+            _questionAndAnswerMap[_currentQuestion] = new ApproachResponse(
+                $"HTTP 404: You must be logged in to ask a question.",
+                null,
+                Array.Empty<string>(),
+                "You must be logged in to ask a question.");
             return;
         }
 
@@ -49,6 +66,8 @@ public sealed partial class Chat
             history.Add(new ChatTurn(_userQuestion));
 
             var request = new ChatRequest(history.ToArray(), Settings.Approach, Settings.Overrides);
+
+
             var result = await ApiClient.ChatConversationAsync(request);
 
             _questionAndAnswerMap[_currentQuestion] = result.Response;

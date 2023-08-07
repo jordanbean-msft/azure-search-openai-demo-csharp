@@ -1,8 +1,5 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Web.Resource;
-
 namespace MinimalApi.Extensions;
 
 internal static class WebApplicationExtensions
@@ -23,8 +20,6 @@ internal static class WebApplicationExtensions
         return app;
     }
 
-    [Authorize]
-    [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     private static async IAsyncEnumerable<ChatChunkResponse> OnPostChatPromptAsync(
         ChatPromptRequest prompt,
         OpenAIClient client,
@@ -67,8 +62,6 @@ internal static class WebApplicationExtensions
         }
     }
 
-    [Authorize]
-    [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     private static async Task<IResult> OnPostChatAsync(
         ChatRequest request,
         ReadRetrieveReadChatService chatService,
@@ -85,8 +78,6 @@ internal static class WebApplicationExtensions
         return Results.BadRequest();
     }
 
-    [Authorize]
-    [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     private static async Task<IResult> OnPostAskAsync(
         AskRequest request,
         ApproachServiceResponseFactory factory,

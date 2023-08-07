@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using Microsoft.AspNetCore.Components.Authorization;
+
 namespace ClientApp.Pages;
 
 public sealed partial class VoiceChat : IDisposable
@@ -29,6 +31,8 @@ public sealed partial class VoiceChat : IDisposable
 
     [CascadingParameter(Name = nameof(IsReversed))]
     public required bool IsReversed { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> _authenticationStateTask { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -38,12 +42,21 @@ public sealed partial class VoiceChat : IDisposable
         }
     }
 
-    private void OnSendPrompt()
+    private async void OnSendPromptAsync()
     {
         if (_isReceivingResponse || string.IsNullOrWhiteSpace(_userQuestion))
         {
             return;
         }
+
+        var user = (await _authenticationStateTask).User;
+
+        if (user.Identity == null || !user.Identity.IsAuthenticated)
+        {
+            _questionAndAnswerMap[_currentQuestion] = $"HTTP 404: You must be logged in to ask a question.";
+            return;
+        }
+
 
         _isReceivingResponse = true;
         _currentQuestion = new(_userQuestion, DateTime.Now);
@@ -100,7 +113,7 @@ public sealed partial class VoiceChat : IDisposable
     {
         if (args is { Key: "Enter", ShiftKey: false })
         {
-            OnSendPrompt();
+            OnSendPromptAsync();
         }
     }
 

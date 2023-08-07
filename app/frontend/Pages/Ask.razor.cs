@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using Microsoft.AspNetCore.Components.Authorization;
+
 namespace ClientApp.Pages;
 
 public sealed partial class Ask
@@ -14,6 +16,8 @@ public sealed partial class Ask
 
     [CascadingParameter(Name = nameof(Settings))]
     public required RequestSettingsOverrides Settings { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> _authenticationStateTask { get; set; }
 
     private Task OnAskQuestionAsync(string question)
     {
@@ -25,6 +29,18 @@ public sealed partial class Ask
     {
         if (string.IsNullOrWhiteSpace(_userQuestion))
         {
+            return;
+        }
+
+        var user = (await _authenticationStateTask).User;
+
+        if (user.Identity == null || !user.Identity.IsAuthenticated)
+        {
+            _approachResponse = new ApproachResponse(
+                $"HTTP 404: You must be logged in to ask a question.",
+                null,
+                Array.Empty<string>(),
+                "You must be logged in to ask a question.");
             return;
         }
 

@@ -1,5 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+
 namespace ClientApp.Services;
 
 public sealed class ApiClient
