@@ -184,7 +184,9 @@ static async ValueTask CreateSearchIndexAsync(AppOptions options)
             new SearchableField("content") { AnalyzerName = "en.microsoft" },
             new SimpleField("category", SearchFieldDataType.String) { IsFacetable = true },
             new SimpleField("sourcepage", SearchFieldDataType.String) { IsFacetable = true },
-            new SimpleField("sourcefile", SearchFieldDataType.String) { IsFacetable = true }
+            new SimpleField("sourcefile", SearchFieldDataType.String) { IsFacetable = true },
+            new SimpleField("groupids", SearchFieldDataType.Collection(SearchFieldDataType.String))
+                { IsFilterable = true, IsHidden = true },
         },
         SemanticSettings = new SemanticSettings
         {
@@ -515,7 +517,8 @@ static async ValueTask IndexSectionsAsync(
                 ["content"] = section.Content,
                 ["category"] = section.Category,
                 ["sourcepage"] = section.SourcePage,
-                ["sourcefile"] = section.SourceFile
+                ["sourcefile"] = section.SourceFile,
+                //["groupids"] = section.GroupIds ?? new string[0]
             }));
 
         iteration++;

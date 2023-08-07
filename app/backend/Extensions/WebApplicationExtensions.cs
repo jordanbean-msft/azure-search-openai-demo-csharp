@@ -9,13 +9,13 @@ internal static class WebApplicationExtensions
         var api = app.MapGroup("api");
 
         // Blazor 📎 Clippy streaming endpoint
-        api.MapPost("openai/chat", OnPostChatPromptAsync);
+        api.MapPost("openai/chat", OnPostChatPromptAsync).RequireAuthorization("AzureAd");
 
         // Long-form chat w/ contextual history endpoint
-        api.MapPost("chat", OnPostChatAsync);
+        api.MapPost("chat", OnPostChatAsync).RequireAuthorization("AzureAd");
 
         // Single Q&A endpoint
-        api.MapPost("ask", OnPostAskAsync);
+        api.MapPost("ask", OnPostAskAsync).RequireAuthorization("AzureAd");
 
         return app;
     }
