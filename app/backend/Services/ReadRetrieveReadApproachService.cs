@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System.Security.Claims;
 using Microsoft.SemanticKernel.Planning.Planners;
 
 namespace MinimalApi.Services;
@@ -63,6 +64,7 @@ internal sealed class ReadRetrieveReadApproachService : IApproachBasedService
 
     public async Task<ApproachResponse> ReplyAsync(
         string question,
+        ClaimsPrincipal user,
         RequestOverrides? overrides,
         CancellationToken cancellationToken = default)
     {

@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System.Security.Claims;
+
 namespace MinimalApi.Services;
 
 internal sealed class ApproachServiceResponseFactory
@@ -16,6 +18,7 @@ internal sealed class ApproachServiceResponseFactory
     internal async Task<ApproachResponse> GetApproachResponseAsync(
         Approach approach,
         string question,
+        ClaimsPrincipal user,
         RequestOverrides? overrides = null,
         CancellationToken cancellationToken = default)
     {
@@ -42,7 +45,7 @@ internal sealed class ApproachServiceResponseFactory
         }
 
         var approachResponse =
-            await service.ReplyAsync(question, overrides, cancellationToken)
+            await service.ReplyAsync(question, user, overrides, cancellationToken)
             ?? throw new AIException(
                 AIException.ErrorCodes.ServiceError,
                 $"The approach response for '{approach}' was null.");

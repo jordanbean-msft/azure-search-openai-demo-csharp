@@ -20,7 +20,7 @@ public sealed class RetrieveRelatedDocumentSkill
     {
         if (searchQuery is string query)
         {
-            var result = await _searchClient.QueryDocumentsAsync(query, _requestOverrides);
+            var result = await _searchClient.QueryDocumentsAsync(query, null, _requestOverrides);
 
             return result;
         }

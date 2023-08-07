@@ -456,7 +456,8 @@ static IEnumerable<Section> CreateSections(
             Content: sectionText,
             SourcePage: BlobNameFromFilePage(fileName, FindPage(pageMap, start)),
             SourceFile: fileName,
-            Category: options.Category);
+            Category: options.Category,
+            GroupIds: new List<string>());
 
         var lastTableStart = sectionText.LastIndexOf("<table", StringComparison.Ordinal);
         if (lastTableStart > 2 * SentenceSearchLimit && lastTableStart > sectionText.LastIndexOf("</table", StringComparison.Ordinal))
@@ -487,7 +488,8 @@ static IEnumerable<Section> CreateSections(
             Content: allText[start..end],
             SourcePage: BlobNameFromFilePage(fileName, FindPage(pageMap, start)),
             SourceFile: fileName,
-            Category: options.Category);
+            Category: options.Category,
+            GroupIds: new List<string>());
     }
 }
 
@@ -518,8 +520,8 @@ static async ValueTask IndexSectionsAsync(
                 ["category"] = section.Category,
                 ["sourcepage"] = section.SourcePage,
                 ["sourcefile"] = section.SourceFile,
-                //["groupids"] = section.GroupIds ?? new string[0]
-            }));
+                ["groupids"] = section.GroupIds ?? new List<string>()
+                }));
 
         iteration++;
         if (iteration % 1_000 is 0)

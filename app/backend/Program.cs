@@ -22,6 +22,7 @@ builder.Services.AddAuthorization(builder =>
     builder.AddPolicy("AzureAd", policy =>
     {
         policy.RequireAuthenticatedUser();
+        //this is the "scp" claim in the JWT, https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/blob/a301921ff5904b2fe084c38e41c969f4b2166bcb/src/System.IdentityModel.Tokens.Jwt/ClaimTypeMapping.cs#L45-L125
         policy.RequireClaim("http://schemas.microsoft.com/identity/claims/scope", "API.Access");
     });
 });

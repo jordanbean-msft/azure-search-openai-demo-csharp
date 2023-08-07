@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System.Security.Claims;
+
 namespace MinimalApi.Services;
 
 internal sealed class RetrieveThenReadApproachService : IApproachBasedService
@@ -52,10 +54,11 @@ internal sealed class RetrieveThenReadApproachService : IApproachBasedService
 
     public async Task<ApproachResponse> ReplyAsync(
         string question,
+        ClaimsPrincipal user,
         RequestOverrides? overrides = null,
         CancellationToken cancellationToken = default)
     {
-        var text = await _searchClient.QueryDocumentsAsync(question, cancellationToken: cancellationToken);
+        var text = await _searchClient.QueryDocumentsAsync(question, user, cancellationToken: cancellationToken);
         var context = _kernel.CreateNewContext();
         context["retrieve"] = text;
         context["question"] = question;

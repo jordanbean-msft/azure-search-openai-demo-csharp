@@ -1,5 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System.Linq;
+using System.Security.Claims;
+
 namespace MinimalApi.Extensions;
 
 internal static class SearchClientExtensions
@@ -7,13 +10,18 @@ internal static class SearchClientExtensions
     internal static async Task<string> QueryDocumentsAsync(
         this SearchClient searchClient,
         string query,
+        ClaimsPrincipal? user = null,
         RequestOverrides? overrides = null,
         CancellationToken cancellationToken = default)
     {
         var documentContents = string.Empty;
         var top = overrides?.Top ?? 3;
         var exclude_category = overrides?.ExcludeCategory;
-        var filter = exclude_category == null ? string.Empty : $"category ne '{exclude_category}'";
+        var filter = exclude_category == null ? string.Empty : $"category ne '{exclude_category}' and ";
+        if (user != null)
+        {
+            filter += $"groupids/any(g:search.in(g, '{string.Join(", ", user.Claims.Where(x => x.Type == "groups").Select(x => x.Value))}'))";
+        }
         var useSemanticRanker = overrides?.SemanticRanker ?? false;
         var useSemanticCaptions = overrides?.SemanticCaptions ?? false;
 

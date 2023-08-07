@@ -18,7 +18,7 @@ if ([string]::IsNullOrEmpty($env:AZD_PREPDOCS_RAN) -or $env:AZD_PREPDOCS_RAN -eq
     Get-Location | Select-Object -ExpandProperty Path
 
     dotnet run --project "app/prepdocs/PrepareDocs/PrepareDocs.csproj" -- `
-        './data/*.pdf' `
+        './data/pdf/*.pdf' `
         --storageendpoint $env:AZURE_STORAGE_BLOB_ENDPOINT `
         --container $env:AZURE_STORAGE_CONTAINER `
         --searchendpoint $env:AZURE_SEARCH_SERVICE_ENDPOINT `

@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System.Security.Claims;
+
 namespace MinimalApi.Extensions;
 
 internal static class WebApplicationExtensions
@@ -24,6 +26,7 @@ internal static class WebApplicationExtensions
         ChatPromptRequest prompt,
         OpenAIClient client,
         IConfiguration config,
+        ClaimsPrincipal user,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var deploymentId = config["AZURE_OPENAI_CHATGPT_DEPLOYMENT"];
@@ -65,6 +68,7 @@ internal static class WebApplicationExtensions
     private static async Task<IResult> OnPostChatAsync(
         ChatRequest request,
         ReadRetrieveReadChatService chatService,
+        ClaimsPrincipal user,
         CancellationToken cancellationToken)
     {
         if (request is { History.Length: > 0 })
@@ -81,12 +85,13 @@ internal static class WebApplicationExtensions
     private static async Task<IResult> OnPostAskAsync(
         AskRequest request,
         ApproachServiceResponseFactory factory,
+        ClaimsPrincipal user,
         CancellationToken cancellationToken)
     {
         if (request is { Question.Length: > 0 })
         {
             var approachResponse = await factory.GetApproachResponseAsync(
-                request.Approach, request.Question, request.Overrides, cancellationToken);
+                request.Approach, request.Question, user, request.Overrides, cancellationToken);
 
             return TypedResults.Ok(approachResponse);
         }

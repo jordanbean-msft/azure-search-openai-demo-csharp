@@ -5,4 +5,6 @@ internal readonly record struct Section(
     string Content,
     string SourcePage,
     string SourceFile,
-    string? Category);
+    List<string> GroupIds,
+    string? Category
+    );
