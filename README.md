@@ -21,10 +21,10 @@ We want to hear from you! Are you interested in building or currently building i
 
 ## Features
 
-* Voice Chat, Chat and Q&A interfaces
-* Explores various options to help users evaluate the trustworthiness of responses with citations, tracking of source content, etc.
-* Shows possible approaches for data preparation, prompt construction, and orchestration of interaction between model (ChatGPT) and retriever (Cognitive Search)
-* Settings directly in the UX to tweak the behavior and experiment with options
+- Voice Chat, Chat and Q&A interfaces
+- Explores various options to help users evaluate the trustworthiness of responses with citations, tracking of source content, etc.
+- Shows possible approaches for data preparation, prompt construction, and orchestration of interaction between model (ChatGPT) and retriever (Cognitive Search)
+- Settings directly in the UX to tweak the behavior and experiment with options
 
 ![Chat screen](docs/chatscreen.png)
 
@@ -34,9 +34,23 @@ We want to hear from you! Are you interested in building or currently building i
 > In order to deploy and run this example, you'll need an **Azure subscription with access enabled for the Azure OpenAI service**. You can request access [here](https://aka.ms/oaiapply). You can also visit [here](https://azure.microsoft.com/free/cognitive-search/) to get some free Azure credits to get you started.
 
 > **Warning**<br>
-> By default this sample will create an Azure App Service, Azure Static Web App, and Azure Cognitive Search resource that have a monthly cost, as well as Form Recognizer resource that has cost per document page. You can switch them to free versions of each of them if you want to avoid this cost by changing the parameters file under the infra folder (though there are some limits to consider; for example, you can have up to 1 free Cognitive Search resource per subscription, and the free Form Recognizer resource only analyzes the first 2 pages of each document.)
+> By default this sample will create an Azure Container App and Azure Cognitive Search resource that have a monthly cost, as well as Form Recognizer resource that has cost per document page. You can switch them to free versions of each of them if you want to avoid this cost by changing the parameters file under the infra folder (though there are some limits to consider; for example, you can have up to 1 free Cognitive Search resource per subscription, and the free Form Recognizer resource only analyzes the first 2 pages of each document.)
 
 ### Prerequisites
+
+#### Set up Azure AD app registrations
+
+Follow the instructions in the link below to set up 2 Azure AD app registrations (one for the front-end & one for the back-end) and grant the necessary permissions to the app registrations.
+
+https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/hosted-with-azure-active-directory?view=aspnetcore-7.0
+
+You will need to set the reply URIs appropriately for the front-end. You may not know the URIs until after deployment is complete, so you can create the app registrations first (so you have the client IDs), then update the reply URIs after deployment is complete.
+
+You will update the `frontend/wwwroot/appsettings.json` and the `backend/appsettings.json` files with the client ID & client secret of the appropriate app registrations.
+
+#### Update Azure AD group membership information for individual documents
+
+In the `data/metadata.json` file, you will find individual entries for each file. These entries indicate the path to the file & the specific Azure AD group membership information for that file. You can update the group membership information for each file by updating the `groupIds` property for each file. These filter the search results so that files a specific user does not have access to will not be returned in the search results.
 
 #### To Run Locally
 
@@ -44,7 +58,7 @@ We want to hear from you! Are you interested in building or currently building i
 - [.NET 7](https://dotnet.microsoft.com/download)
 - [Git](https://git-scm.com/downloads)
 - [Powershell 7+ (pwsh)](https://github.com/powershell/powershell) - For Windows users only.
-   - **Important**: Ensure you can run `pwsh.exe` from a PowerShell command. If this fails, you likely need to upgrade PowerShell.
+  - **Important**: Ensure you can run `pwsh.exe` from a PowerShell command. If this fails, you likely need to upgrade PowerShell.
 - [Docker](https://www.docker.com/products/docker-desktop/)
   - **Important**: Ensure Docker is running before running any `azd` provisioning / deployment commands.
 
@@ -53,7 +67,7 @@ We want to hear from you! Are you interested in building or currently building i
 
 #### To Run in GitHub Codespaces or VS Code Remote Containers
 
-You can run this repo virtually by using GitHub Codespaces or VS Code Remote Containers.  Click on one of the buttons below to open this repo in one of those options.
+You can run this repo virtually by using GitHub Codespaces or VS Code Remote Containers. Click on one of the buttons below to open this repo in one of those options.
 
 [![Open in GitHub - Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=624102171&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2)
 [![Open in Remote - Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/azure-samples/azure-search-openai-demo-csharp)
@@ -65,7 +79,7 @@ You can run this repo virtually by using GitHub Codespaces or VS Code Remote Con
 1. Create a new folder and switch to it in the terminal
 1. Run `azd auth login`
 1. Run `azd init -t azure-search-openai-demo-csharp`
-    * For the target location, the regions that currently support the model used in this sample are **East US** or **South Central US**. For an up-to-date list of regions and models, check [here](https://learn.microsoft.com/azure/cognitive-services/openai/concepts/models)
+   - For the target location, the regions that currently support the model used in this sample are **East US** or **South Central US**. For an up-to-date list of regions and models, check [here](https://learn.microsoft.com/azure/cognitive-services/openai/concepts/models)
 
 #### Starting from scratch
 
@@ -74,9 +88,9 @@ Execute the following command, if you don't have any pre-existing Azure services
 1. Run `azd up` - This will provision Azure resources and deploy this sample to those resources, including building the search index based on the files found in the `./data` folder.
 
 > **Note**<br>
-> This application uses the `gpt-35-turbo` model. When choosing which region to deploy to, make sure they're available in that region (i.e. EastUS). For more information, see the [Azure OpenAI Service documentation](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/concepts/models#gpt-3-models-1).  
+> This application uses the `gpt-35-turbo` model. When choosing which region to deploy to, make sure they're available in that region (i.e. EastUS). For more information, see the [Azure OpenAI Service documentation](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/concepts/models#gpt-3-models-1).
 
-1. After the application has been successfully deployed you will see a URL printed to the console.  Click that URL to interact with the application in your browser.  
+1. After the application has been successfully deployed you will see a URL printed to the console. Click that URL to interact with the application in your browser.
 
 It will look like the following:
 
@@ -93,11 +107,11 @@ It will look like the following:
 1. Run `azd env set AZURE_OPENAI_GPT_DEPLOYMENT {Name of existing GPT deployment}`. Only needed if your ChatGPT deployment is not the default `davinci`.
 1. Run `azd up`
 
-> NOTE: You can also use existing Search and Storage Accounts.  See `./infra/main.parameters.json` for list of environment variables to pass to `azd env set` to configure those existing resources.
+> NOTE: You can also use existing Search and Storage Accounts. See `./infra/main.parameters.json` for list of environment variables to pass to `azd env set` to configure those existing resources.
 
 #### Deploying or re-deploying a local clone of the repo
 
-* Run `azd up`
+- Run `azd up`
 
 #### Deploying your repo using App Spaces
 
@@ -110,36 +124,40 @@ It will look like the following:
    "resourceGroupName": {
       "value": "${AZURE_RESOURCE_GROUP}"
     }
+   ```
 2. Add AZURE_TAGS to main parameters file to read the value from environment variable set in GitHub Actions workflow file by App Spaces.
    ```json
    "tags": {
       "value": "${AZURE_TAGS}"
     }
+   ```
 3. Add support for resource group and tags in your main bicep file to read the value being set by App Spaces.
    ```bicep
    param resourceGroupName string = ''
    param tags string = ''
-4. Combine the default tags set by Azd with those being set by App Spaces. Replace *tags initialization* in your main bicep file with the following - 
-   ```bicep
+   ```
+4. Combine the default tags set by Azd with those being set by App Spaces. Replace _tags initialization_ in your main bicep file with the following -
+   ````bicep
    var baseTags = { 'azd-env-name': environmentName }
    var updatedTags = union(empty(tags) ? {} : base64ToJson(tags), baseTags)
-   Make sure to use "updatedTags" when assigning "tags" to resource group created in your bicep file and update the other resources to use "baseTags" instead of "tags". For example - 
+   Make sure to use "updatedTags" when assigning "tags" to resource group created in your bicep file and update the other resources to use "baseTags" instead of "tags". For example -
    ```json
    resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
      name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
      location: location
      tags: updatedTags
    }
+   ````
 
 #### Running locally
 
 1. Run `azd auth login`
-1. After the application deploys, set the environment variable `AZURE_KEY_VAULT_ENDPOINT`. You can find the value in the *.azure/YOUR-ENVIRONMENT-NAME/.env* file or the Azure portal.
+1. After the application deploys, set the environment variable `AZURE_KEY_VAULT_ENDPOINT`. You can find the value in the _.azure/YOUR-ENVIRONMENT-NAME/.env_ file or the Azure portal.
 1. Run the following .NET CLI command to start the ASP.NET Core Minimal API server (client host):
 
-    ```dotnetcli
-    dotnet run --project ./app/backend/MinimalApi.csproj --urls=http://localhost:7181/
-    ```
+   ```dotnetcli
+   dotnet run --project ./app/backend/MinimalApi.csproj --urls=http://localhost:7181/
+   ```
 
 Navigate to <http://localhost:7181>, and test out the app.
 
@@ -149,8 +167,8 @@ Run the following if you want to give someone else access to the deployed and ex
 
 1. Install the [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 1. Run `azd init -t azure-search-openai-demo-csharp`
-1. Run `azd env refresh -e {environment name}` - Note that they will need the azd environment name, subscription Id, and location to run this command - you can find those values in your `./azure/{env name}/.env` file.  This will populate their azd environment's .env file with all the settings needed to run the app locally.
-1. Run `pwsh ./scripts/roles.ps1` - This will assign all of the necessary roles to the user so they can run the app locally.  If they do not have the necessary permission to create roles in the subscription, then you may need to run this script for them. Just be sure to set the `AZURE_PRINCIPAL_ID` environment variable in the azd .env file or in the active shell to their Azure Id, which they can get with `az account show`.
+1. Run `azd env refresh -e {environment name}` - Note that they will need the azd environment name, subscription Id, and location to run this command - you can find those values in your `./azure/{env name}/.env` file. This will populate their azd environment's .env file with all the settings needed to run the app locally.
+1. Run `pwsh ./scripts/roles.ps1` - This will assign all of the necessary roles to the user so they can run the app locally. If they do not have the necessary permission to create roles in the subscription, then you may need to run this script for them. Just be sure to set the `AZURE_PRINCIPAL_ID` environment variable in the azd .env file or in the active shell to their Azure Id, which they can get with `az account show`.
 
 #### Clean up resources
 
@@ -158,30 +176,30 @@ Run `azd down`
 
 ### Quickstart
 
-* In Azure: navigate to the Azure Static Web App deployed by `azd`. The URL is printed out when `azd` completes (as "Endpoint"), or you can find it in the Azure portal.
-* When running locally, navigate to <http://localhost:7181> for the client app and <http://localhost:7181/swagger> for the Open API server page.
+- In Azure: navigate to the Azure Container App deployed by `azd`. The URL is printed out when `azd` completes (as "Endpoint"), or you can find it in the Azure portal.
+- When running locally, navigate to <http://localhost:7181> for the client app and <http://localhost:7181/swagger> for the Open API server page.
 
 Once in the web app:
 
-* On the **Voice Chat** page, select the voice settings dialog and configure text-to-speech preferences.
-  * You can either type messages to interact with Blazor Clippy, or select the Speak toggle button to use speech-to-text as your input.
-* Try different topics in **Chat** or **Ask Questions** context. For chat, try follow up questions, clarifications, ask to simplify or elaborate on answer, etc.
-* Explore citations and sources
-* Click on the "settings" icon to try different options, tweak prompts, etc.
+- On the **Voice Chat** page, select the voice settings dialog and configure text-to-speech preferences.
+  - You can either type messages to interact with Blazor Clippy, or select the Speak toggle button to use speech-to-text as your input.
+- Try different topics in **Chat** or **Ask Questions** context. For chat, try follow up questions, clarifications, ask to simplify or elaborate on answer, etc.
+- Explore citations and sources
+- Click on the "settings" icon to try different options, tweak prompts, etc.
 
 ## Resources
 
-* [Revolutionize your Enterprise Data with ChatGPT: Next-gen Apps w/ Azure OpenAI and Cognitive Search](https://aka.ms/entgptsearchblog)
-* [Azure Cognitive Search](https://learn.microsoft.com/azure/search/search-what-is-azure-search)
-* [Azure OpenAI Service](https://learn.microsoft.com/azure/cognitive-services/openai/overview)
-* [`Azure.AI.OpenAI` NuGet package](https://www.nuget.org/packages/Azure.AI.OpenAI)
-* [Original Blazor App](https://github.com/IEvangelist/blazor-azure-openai)
+- [Revolutionize your Enterprise Data with ChatGPT: Next-gen Apps w/ Azure OpenAI and Cognitive Search](https://aka.ms/entgptsearchblog)
+- [Azure Cognitive Search](https://learn.microsoft.com/azure/search/search-what-is-azure-search)
+- [Azure OpenAI Service](https://learn.microsoft.com/azure/cognitive-services/openai/overview)
+- [`Azure.AI.OpenAI` NuGet package](https://www.nuget.org/packages/Azure.AI.OpenAI)
+- [Original Blazor App](https://github.com/IEvangelist/blazor-azure-openai)
 
 > **Note**<br>
 > The PDF documents used in this demo contain information generated using a language model (Azure OpenAI Service). The information contained in these documents is only for demonstration purposes and does not reflect the opinions or beliefs of Microsoft. Microsoft makes no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability or availability with respect to the information contained in this document. All rights reserved to Microsoft.
 
 ### FAQ
 
-***Question***: Why do we need to break up the PDFs into chunks when Azure Cognitive Search supports searching large documents?
+**_Question_**: Why do we need to break up the PDFs into chunks when Azure Cognitive Search supports searching large documents?
 
-***Answer***: Chunking allows us to limit the amount of information we send to OpenAI due to token limits. By breaking up the content, it allows us to easily find potential chunks of text that we can inject into OpenAI. The method of chunking we use leverages a sliding window of text such that sentences that end one chunk will start the next. This allows us to reduce the chance of losing the context of the text.
+**_Answer_**: Chunking allows us to limit the amount of information we send to OpenAI due to token limits. By breaking up the content, it allows us to easily find potential chunks of text that we can inject into OpenAI. The method of chunking we use leverages a sliding window of text such that sentences that end one chunk will start the next. This allows us to reduce the chance of losing the context of the text.
