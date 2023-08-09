@@ -7,4 +7,5 @@ public record ApproachResponse(
     string? Thoughts,
     string[] DataPoints,
     string CitationBaseUrl,
+    string[] GroupIds,
     string? Error = null);

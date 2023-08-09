@@ -8,13 +8,9 @@ using System.Threading.Tasks;
 
 namespace PrepareDocs;
 
-public class FileMetadata
-{
-    public string FilePath { get; set; }
-    public List<string> GroupIds { get; set; }
-}
+internal record class FileMetadata(
+    string FilePath,
+    List<string> GroupIds);
 
-public class FilesMetadata
-{
-    public List<FileMetadata> Files { get; set; }
-}
+internal record class FilesMetadata(
+    List<FileMetadata> Files);

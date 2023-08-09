@@ -37,11 +37,18 @@ internal sealed class ApproachServiceResponseFactory
         if (cachedValue is { Length: > 0 } &&
             JsonSerializer.Deserialize<ApproachResponse>(cachedValue, options) is ApproachResponse cachedResponse)
         {
-            _logger.LogDebug(
-                "Returning cached value for key ({Key}): {Approach}\n{Response}",
-                key, approach, cachedResponse);
+            _logger.LogDebug("Received cached value for key ({Key}): {Approach}\n{Response}. Checking AAD group membership...",
+                               key, approach, cachedResponse);
 
-            return cachedResponse;
+            //if the user is in a group that is allowed to retrieve the cached response, return it
+            if (cachedResponse.GroupIds.ToList().Intersect(user.Claims.Where(x => x.Type == "groups").Select(x => x.Value)).Any())
+            {
+                _logger.LogDebug(
+                    "Returning cached value for key ({Key}): {Approach}\n{Response}",
+                    key, approach, cachedResponse);
+
+                return cachedResponse;
+            }
         }
 
         var approachResponse =

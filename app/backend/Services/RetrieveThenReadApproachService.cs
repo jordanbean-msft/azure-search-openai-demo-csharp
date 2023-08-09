@@ -69,6 +69,7 @@ internal sealed class RetrieveThenReadApproachService : IApproachBasedService
             DataPoints: text.Split('\r'),
             Answer: answer.ToString(),
             Thoughts: $"Question: {question} \r Prompt: {context.Variables}",
-            CitationBaseUrl: _configuration.ToCitationBaseUrl());
+            CitationBaseUrl: _configuration.ToCitationBaseUrl(),
+            GroupIds: user.Claims.Where(x => x.Type == "groups").Select(x => x.Value).ToArray());
     }
 }

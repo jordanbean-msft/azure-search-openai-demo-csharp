@@ -74,7 +74,7 @@ internal static class WebApplicationExtensions
         if (request is { History.Length: > 0 })
         {
             var response = await chatService.ReplyAsync(
-                request.History, request.Overrides, cancellationToken);
+                request.History, request.Overrides, user, cancellationToken);
 
             return TypedResults.Ok(response);
         }

@@ -47,10 +47,12 @@ public sealed class ApiClient
         else
         {
             var answer = new ApproachResponse(
-                $"HTTP {(int)response.StatusCode} : {response.ReasonPhrase ?? "☹️ Unknown error..."}",
-                null,
-                Array.Empty<string>(),
-                "Unable to retrieve valid response from the server.");
+                Answer: $"HTTP {(int)response.StatusCode} : {response.ReasonPhrase ?? "☹️ Unknown error..."}",
+                Thoughts: null,
+                DataPoints: Array.Empty<string>(),
+                CitationBaseUrl: "",
+                GroupIds: Array.Empty<string>(),
+                Error: "Unable to retrieve valid response from the server.");
 
             return result with
             {

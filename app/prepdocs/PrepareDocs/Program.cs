@@ -84,7 +84,9 @@ static async Task<FilesMetadata> ReadMetadataAsync(AppOptions options)
         options.Console.WriteLine($"Reading metadata from '{options.MetadataFile}'");
     }
     var json = await File.ReadAllTextAsync(options.MetadataFile);
-    return JsonSerializer.Deserialize<FilesMetadata>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); ;
+    var filesMetadata = JsonSerializer.Deserialize<FilesMetadata>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+    return filesMetadata is null ? throw new FileLoadException("Failed to deserialize metadata file") : filesMetadata;
 }
 
 return await s_rootCommand.InvokeAsync(args);
@@ -472,7 +474,7 @@ static IEnumerable<Section> CreateSections(
             SourcePage: BlobNameFromFilePage(fileName, FindPage(pageMap, start)),
             SourceFile: fileName,
             Category: options.Category,
-            GroupIds: fileMetadata.GroupIds.Count() == 0? new List<string>() : fileMetadata.GroupIds);
+            GroupIds: fileMetadata.GroupIds.Count == 0? new List<string>() : fileMetadata.GroupIds);
 
         var lastTableStart = sectionText.LastIndexOf("<table", StringComparison.Ordinal);
         if (lastTableStart > 2 * SentenceSearchLimit && lastTableStart > sectionText.LastIndexOf("</table", StringComparison.Ordinal))
@@ -504,7 +506,7 @@ static IEnumerable<Section> CreateSections(
             SourcePage: BlobNameFromFilePage(fileName, FindPage(pageMap, start)),
             SourceFile: fileName,
             Category: options.Category,
-            GroupIds: fileMetadata.GroupIds.Count() == 0 ? new List<string>() : fileMetadata.GroupIds);
+            GroupIds: fileMetadata.GroupIds.Count == 0 ? new List<string>() : fileMetadata.GroupIds);
     }
 }
 

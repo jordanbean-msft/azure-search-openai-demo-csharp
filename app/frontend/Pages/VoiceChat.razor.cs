@@ -32,7 +32,9 @@ public sealed partial class VoiceChat : IDisposable
     [CascadingParameter(Name = nameof(IsReversed))]
     public required bool IsReversed { get; set; }
     [CascadingParameter]
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private Task<AuthenticationState> _authenticationStateTask { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

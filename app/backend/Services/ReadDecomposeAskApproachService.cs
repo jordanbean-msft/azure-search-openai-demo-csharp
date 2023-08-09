@@ -223,7 +223,8 @@ internal sealed class ReadDecomposeAskApproachService : IApproachBasedService
             DataPoints: plan.State["knowledge"].ToString().Split('\r'),
             Answer: plan.State["Answer"],
             Thoughts: plan.State["SUMMARY"].Replace("\n", "<br>"),
-            CitationBaseUrl: _configuration.ToCitationBaseUrl());
+            CitationBaseUrl: _configuration.ToCitationBaseUrl(),
+            GroupIds: user.Claims.Where(x => x.Type == "groups").Select(x => x.Value).ToArray());
     }
 
     private static string PlanToString(Plan originalPlan)

@@ -24,7 +24,9 @@ public sealed partial class Chat
     public required bool IsReversed { get; set; }
 
     [CascadingParameter]
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private Task<AuthenticationState> _authenticationStateTask { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     private Task OnAskQuestionAsync(string question)
     {
@@ -44,10 +46,12 @@ public sealed partial class Chat
         if(user.Identity == null || !user.Identity.IsAuthenticated)
         {
             _questionAndAnswerMap[_currentQuestion] = new ApproachResponse(
-                $"HTTP 404: You must be logged in to ask a question.",
-                null,
-                Array.Empty<string>(),
-                "You must be logged in to ask a question.");
+                Answer: $"HTTP 404: You must be logged in to ask a question.",
+                Thoughts: null,
+                DataPoints: Array.Empty<string>(),
+                CitationBaseUrl: "",
+                GroupIds: Array.Empty<string>(),
+                Error: "You must be logged in to ask a question.");
             return;
         }
 

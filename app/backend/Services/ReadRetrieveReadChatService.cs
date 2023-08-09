@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System.Security.Claims;
+
 namespace MinimalApi.Services;
 
 public class ReadRetrieveReadChatService
@@ -62,6 +64,7 @@ public class ReadRetrieveReadChatService
     public async Task<ApproachResponse> ReplyAsync(
         ChatTurn[] history,
         RequestOverrides? overrides,
+        ClaimsPrincipal user,
         CancellationToken cancellationToken = default)
     {
         var top = overrides?.Top ?? 3;
@@ -88,7 +91,7 @@ public class ReadRetrieveReadChatService
         var query = await _kernel.RunAsync(context, cancellationToken, queryFunction);
         // step 2
         // use query to search related docs
-        var documentContents = await _searchClient.QueryDocumentsAsync(query.Result, null, overrides, cancellationToken);
+        var documentContents = await _searchClient.QueryDocumentsAsync(query.Result, user, overrides, cancellationToken);
 
         // step 3
         // use llm to get answer
@@ -134,7 +137,8 @@ public class ReadRetrieveReadChatService
             DataPoints: documentContents.Split('\r'),
             Answer: ans.Result,
             Thoughts: $"Searched for:<br>{query}<br><br>Prompt:<br>{prompt.Replace("\n", "<br>")}",
-            CitationBaseUrl: _configuration.ToCitationBaseUrl());
+            CitationBaseUrl: _configuration.ToCitationBaseUrl(),
+            GroupIds: user.Claims.Where(x => x.Type == "groups").Select(x => x.Value).ToArray());
     }
 
     private ISKFunction CreateQueryPromptFunction(ChatTurn[] history)
