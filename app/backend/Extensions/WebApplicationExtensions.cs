@@ -16,14 +16,17 @@ internal static class WebApplicationExtensions
         // Long-form chat w/ contextual history endpoint
         api.MapPost("chat", OnPostChatAsync).RequireAuthorization("AzureAd");
 
-        // Single Q&A endpoint
-        api.MapPost("ask", OnPostAskAsync).RequireAuthorization("AzureAd");
+        // Get all documents
+        api.MapGet("documents", OnGetDocumentsAsync).RequireAuthorization("AzureAd");
+
+        // Get DALL-E image result from prompt
+        api.MapPost("images", OnPostImagePromptAsync).RequireAuthorization("AzureAd");
 
         return app;
     }
 
     private static async IAsyncEnumerable<ChatChunkResponse> OnPostChatPromptAsync(
-        ChatPromptRequest prompt,
+        PromptRequest prompt,
         OpenAIClient client,
         IConfiguration config,
         ClaimsPrincipal user,
@@ -82,20 +85,75 @@ internal static class WebApplicationExtensions
         return Results.BadRequest();
     }
 
-    private static async Task<IResult> OnPostAskAsync(
-        AskRequest request,
-        ApproachServiceResponseFactory factory,
+    private static async Task<IResult> OnPostDocumentAsync(
+        [FromForm] IFormFileCollection files,
+        [FromServices] AzureBlobStorageService service,
         ClaimsPrincipal user,
         CancellationToken cancellationToken)
     {
-        if (request is { Question.Length: > 0 })
+        var response = await service.UploadFilesAsync(files, cancellationToken);
+
+        return TypedResults.Ok(response);
+
+    }
+
+    private static async IAsyncEnumerable<DocumentResponse> OnGetDocumentsAsync(
+        BlobContainerClient client,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await foreach (var blob in client.GetBlobsAsync(cancellationToken: cancellationToken))
         {
-            var approachResponse = await factory.GetApproachResponseAsync(
-                request.Approach, request.Question, user, request.Overrides, cancellationToken);
+            if (blob is not null and { Deleted: false })
+            {
+                var props = blob.Properties;
+                var baseUri = client.Uri;
+                var builder = new UriBuilder(baseUri);
+                builder.Path += $"/{blob.Name}";
 
-            return TypedResults.Ok(approachResponse);
+                var metadata = blob.Metadata;
+                var documentProcessingStatus = GetMetadataEnumOrDefault<DocumentProcessingStatus>(
+                    metadata, nameof(DocumentProcessingStatus), DocumentProcessingStatus.NotProcessed);
+                var embeddingType = GetMetadataEnumOrDefault<EmbeddingType>(
+                    metadata, nameof(EmbeddingType), EmbeddingType.AzureSearch);
+
+                yield return new(
+                    blob.Name,
+                    props.ContentType,
+                    props.ContentLength ?? 0,
+                    props.LastModified,
+                    builder.Uri,
+                    documentProcessingStatus,
+                    embeddingType);
+
+                static TEnum GetMetadataEnumOrDefault<TEnum>(
+                    IDictionary<string, string> metadata,
+                    string key,
+                    TEnum @default) where TEnum : struct
+                {
+                    return metadata.TryGetValue(key, out var value)
+                        && Enum.TryParse<TEnum>(value, out var status)
+                            ? status
+                            : @default;
+                }
+            }
         }
+    }
 
-        return Results.BadRequest();
+    private static async Task<IResult> OnPostImagePromptAsync(
+        PromptRequest prompt,
+        OpenAIClient client,
+        IConfiguration config,
+        CancellationToken cancellationToken)
+    {
+        var result = await client.GetImageGenerationsAsync(new ImageGenerationOptions
+        {
+            Prompt = prompt.Prompt,
+        },
+        cancellationToken);
+
+        var imageUrls = result.Value.Data.Select(i => i.Url).ToList();
+        var response = new ImageResponse(result.Value.Created, imageUrls);
+
+        return TypedResults.Ok(response);
     }
 }
